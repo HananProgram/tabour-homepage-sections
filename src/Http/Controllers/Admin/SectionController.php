@@ -21,11 +21,13 @@ class SectionController extends Controller
 
     public function store(Request $request) {
         $validated = $request->validate([
-            'type' => 'required|string|in:hero,feature_grid,cta',
+        'type' => 'required|string|in:hero,feature_grid,cta,contact_info',
             'title' => 'nullable|string|max:255',
             'subtitle' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'features' => 'nullable|array',
+            'contact' => 'nullable|array',
+
         ]);
 
         $data = [
@@ -53,7 +55,19 @@ class SectionController extends Controller
                 $features[] = $feature;
             }
             $data['content'] = ['features' => $features];
-        }
+        }elseif ($request->type === 'contact_info' && isset($validated['contact'])) {
+    $contact = $validated['contact'];
+
+    $data['content'] = [
+        'contact' => [
+            'phone'      => $contact['phone'] ?? null,
+            'email'      => $contact['email'] ?? null,
+            'address'    => $contact['address'] ?? null,
+            'map_embed'  => $contact['map_embed'] ?? null,
+            'socials'    => $contact['socials'] ?? [],
+        ],
+    ];
+}
 
         $data['order'] = (int) HomepageSection::max('order') + 1;
         HomepageSection::create($data);

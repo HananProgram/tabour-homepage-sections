@@ -24,11 +24,13 @@
             {{-- Main Section Details --}}
             <div>
                 <label for="section-type-select" class="block font-medium">@tr('Section Type')</label>
-                <select name="type" id="section-type-select" class="w-full border p-2 rounded mt-1" required>
+               <select name="type" id="section-type-select" class="w-full border p-2 rounded mt-1" required>
                     <option value="hero" @if(old('type') == 'hero') selected @endif>@tr('Hero Section')</option>
                     <option value="feature_grid" @if(old('type') == 'feature_grid') selected @endif>@tr('Feature Grid')</option>
                     <option value="cta" @if(old('type') == 'cta') selected @endif>@tr('Call to Action')</option>
+                    <option value="contact_info" @if(old('type') == 'contact_info') selected @endif>@tr('Contact Information')</option>
                 </select>
+
             </div>
 
             <div>
@@ -64,6 +66,44 @@
                     </div>
                 @endfor
             </div>
+</div> <!-- نهاية featureGridContainer -->
+
+<!-- NEW: Contact Info container -->
+<div id="contactInfoContainer" class="bg-gray-50 p-4 rounded-lg border" style="display: none;">
+    <h3 class="text-lg font-semibold text-gray-700 mb-4">@tr('Contact Information')</h3>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+            <label class="block text-sm font-medium">@tr('Phone')</label>
+            <input type="text" name="contact[phone]" value="{{ old('contact.phone') }}" placeholder="@tr('Phone number')" class="w-full border p-2 rounded mt-1">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium">@tr('Email')</label>
+            <input type="email" name="contact[email]" value="{{ old('contact.email') }}" placeholder="@tr('Email address')" class="w-full border p-2 rounded mt-1">
+        </div>
+
+        <div class="md:col-span-2">
+            <label class="block text-sm font-medium">@tr('Address')</label>
+            <input type="text" name="contact[address]" value="{{ old('contact.address') }}" placeholder="@tr('Physical address')" class="w-full border p-2 rounded mt-1">
+        </div>
+
+        <div class="md:col-span-2">
+            <label class="block text-sm font-medium">@tr('Map Embed (iframe or URL)')</label>
+            <textarea name="contact[map_embed]" rows="3" class="w-full border p-2 rounded mt-1" placeholder="@tr('Paste iframe or map URL here')">{{ old('contact.map_embed') }}</textarea>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <p class="font-semibold">@tr('Social Links (optional)')</p>
+        @for ($i = 0; $i < 3; $i++)
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                <input type="text" name="contact[socials][{{ $i }}][platform]" placeholder="@tr('Platform e.g. Twitter')" class="w-full border p-2 rounded">
+                <input type="url" name="contact[socials][{{ $i }}][url]" placeholder="@tr('Profile URL')" class="w-full border p-2 rounded">
+            </div>
+        @endfor
+    </div>
+</div>
 
             <div class="text-right">
                 <button type="submit" class="bg-blue-600 text-white font-bold px-6 py-2 rounded-lg hover:bg-blue-700">
@@ -81,24 +121,34 @@
         const sectionTypeSelect = document.getElementById('section-type-select');
         const mainImageContainer = document.getElementById('main-image-container');
         const featureGridContainer = document.getElementById('featureGridContainer');
+        const contactInfoContainer = document.getElementById('contactInfoContainer');
 
-        function updateFormVisibility() {
-            const selectedType = sectionTypeSelect.value;
 
-            // Toggle visibility of the Main Image field
-            if (selectedType === 'feature_grid') {
-                mainImageContainer.style.display = 'none';
-            } else {
-                mainImageContainer.style.display = 'block';
-            }
+       function updateFormVisibility() {
+    const selectedType = sectionTypeSelect.value;
 
-            // Toggle visibility of the Feature Grid fields
-            if (selectedType === 'feature_grid') {
-                featureGridContainer.style.display = 'block';
-            } else {
-                featureGridContainer.style.display = 'none';
-            }
-        }
+    // Toggle Main Image visibility
+    if (selectedType === 'feature_grid' || selectedType === 'contact_info') {
+        mainImageContainer.style.display = 'none';
+    } else {
+        mainImageContainer.style.display = 'block';
+    }
+
+    // Feature Grid visibility
+    if (selectedType === 'feature_grid') {
+        featureGridContainer.style.display = 'block';
+    } else {
+        featureGridContainer.style.display = 'none';
+    }
+
+    // Contact Info visibility
+    if (selectedType === 'contact_info') {
+        contactInfoContainer.style.display = 'block';
+    } else {
+        contactInfoContainer.style.display = 'none';
+    }
+}
+
 
         // Initial state
         updateFormVisibility();

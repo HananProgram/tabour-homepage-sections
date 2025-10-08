@@ -1,13 +1,20 @@
+
 <section class="py-20 bg-gradient-to-b from-gray-50 to-white dark:from-slate-900 dark:to-slate-950"
          dir="{{ app()->getLocale()==='ar' ? 'rtl' : 'ltr' }}">
   <div class="mx-auto max-w-7xl px-6">
 
-    {{-- Header: شريط متدرّج rounded بنفس ألوان الموقع --}}
+    {{-- Header: شريط أزرق متدرّج --}}
     <div class="mb-12">
-      <div
-        class="relative overflow-hidden rounded-2xl">
+      <div class="relative overflow-hidden rounded-2xl">
         <div class="h-40 md:h-56 w-full rounded-2xl
-                    bg-gradient-to-r from-indigo-600 via-violet-600 to-pink-500 dark:from-indigo-700 dark:via-violet-700 dark:to-pink-600">
+                    bg-gradient-to-r from-sky-600 via-blue-700 to-indigo-800
+                    dark:from-sky-700 dark:via-blue-800 dark:to-indigo-900 shadow-lg">
+        </div>
+
+        {{-- لمسة خفيفة لإبراز النص --}}
+        <div class="pointer-events-none absolute inset-0">
+          <div class="absolute inset-0 bg-white/0"></div>
+          <div class="absolute inset-0 [mask-image:radial-gradient(60%_60% at 50%_40%,black,transparent)] bg-white/10"></div>
         </div>
 
         <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-6">

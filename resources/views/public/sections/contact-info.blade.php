@@ -93,21 +93,44 @@
             @endif
           </p>
 
-          @php($hasSocial = !empty($c['facebook']) || !empty($c['twitter']) || !empty($c['instagram']) || !empty($c['linkedin']))
-          <div class="mt-3 flex flex-wrap gap-3">
-            @foreach (['facebook','twitter','instagram','linkedin'] as $s)
-              @if(!empty($c[$s]))
-                <a href="{{ $c[$s] }}" target="_blank" rel="noopener"
-                   class="inline-flex items-center justify-center h-9 w-9 rounded-lg bg-slate-700 hover:bg-slate-600">
-                  <span class="sr-only">{{ ucfirst($s) }}</span>
-                  {{-- ضع الأيقونة التي تفضلها هنا --}}
-                </a>
-              @endif
-            @endforeach
-            @unless($hasSocial)
-              <span class="text-slate-400 text-sm">@tr('Add your social links in settings')</span>
-            @endunless
-          </div>
+       @php($hasSocial = !empty($c['facebook']) || !empty($c['twitter']) || !empty($c['instagram']) || !empty($c['linkedin']))
+<div class="mt-3 flex flex-wrap gap-3">
+  @foreach (['facebook','twitter','instagram','linkedin'] as $s)
+    @if(!empty($c[$s]))
+      <a href="{{ $c[$s] }}" target="_blank" rel="noopener"
+         class="inline-flex items-center justify-center h-9 w-9 rounded-lg bg-slate-700 hover:bg-slate-600"
+         aria-label="{{ ucfirst($s) }}">
+        @switch($s)
+          @case('facebook')
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M13 3h4v4h-4v3h3.5l-.5 4H13v8h-4v-8H7v-4h2V7.5A4.5 4.5 0 0113 3z"/>
+            </svg>
+          @break
+          @case('twitter')
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M22 5.8a8.2 8.2 0 01-2.36.65 4.1 4.1 0 001.8-2.26 8.2 8.2 0 01-2.6 1 4.1 4.1 0 00-7 3.74A11.7 11.7 0 013 5.15a4.1 4.1 0 001.27 5.48 4 4 0 01-1.85-.5v.05a4.1 4.1 0 003.3 4 4.1 4.1 0 01-1.85.07 4.1 4.1 0 003.83 2.85A8.23 8.23 0 012 19.54 11.6 11.6 0 008.29 21c7.55 0 11.68-6.26 11.68-11.68 0-.18 0-.35-.01-.53A8.3 8.3 0 0022 5.8z"/>
+            </svg>
+          @break
+          @case('instagram')
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M7 2h10a5 5 0 015 5v10a5 5 0 01-5 5H7a5 5 0 01-5-5V7a5 5 0 015-5zm0 2a3 3 0 00-3 3v10a3 3 0 003 3h10a3 3 0 003-3V7a3 3 0 00-3-3H7zm5 3.5a5.5 5.5 0 110 11 5.5 5.5 0 010-11zm5.75-.75a1 1 0 110 2 1 1 0 010-2z"/>
+            </svg>
+          @break
+          @case('linkedin')
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M4 3a2 2 0 110 4 2 2 0 010-4zM3 8h3v13H3V8zm6 0h3v1.8h.05A3.3 3.3 0 0115.8 8c3.2 0 3.8 2.1 3.8 4.8V21h-3v-6.5c0-1.6 0-3.7-2.2-3.7s-2.5 1.7-2.5 3.6V21H9V8z"/>
+            </svg>
+          @break
+        @endswitch
+      </a>
+    @endif
+  @endforeach
+
+  @unless($hasSocial)
+    <span class="text-slate-400 text-sm">@tr('Add your social links in settings')</span>
+  @endunless
+</div>
+
         </div>
       </div>
 

@@ -2,18 +2,14 @@
          dir="{{ app()->getLocale()==='ar' ? 'rtl' : 'ltr' }}">
   <div class="mx-auto max-w-7xl px-6">
 
-    {{-- Header (صورة مع عنوان فوقها مثل التصميم) --}}
-    @php $img = filled($section->image_path) ? asset($section->image_path) : null; @endphp
+    {{-- Header: شريط متدرّج rounded بنفس ألوان الموقع --}}
     <div class="mb-12">
-      <div class="relative overflow-hidden rounded-2xl ring-1 ring-gray-200 dark:ring-slate-700">
-        @if($img)
-          <img src="{{ $img }}"
-               alt="{{ trk('homepage.contact.title.'.$section->id, $section->title ?? __('Contact Us')) }}"
-               class="h-40 md:h-56 w-full object-cover" loading="lazy" />
-        @else
-          <div class="h-40 md:h-56 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
-        @endif
-        <div class="absolute inset-0 bg-black/10 dark:bg-black/30"></div>
+      <div
+        class="relative overflow-hidden rounded-2xl">
+        <div class="h-40 md:h-56 w-full rounded-2xl
+                    bg-gradient-to-r from-indigo-600 via-violet-600 to-pink-500 dark:from-indigo-700 dark:via-violet-700 dark:to-pink-600">
+        </div>
+
         <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
           <h3 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white">
             {{ trk('homepage.contact.title.'.$section->id, $section->title ?? __('Contact Us')) }}
@@ -83,7 +79,7 @@
           @if(!empty($c['website']))
             <li class="flex items-start gap-3">
               <span class="inline-flex h-10 w-10 rounded-xl bg-blue-50 dark:bg-blue-900/40 items-center justify-center">
-                <svg class="h-5 w-5 text-blue-600 dark:text-blue-300" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9" stroke-width="2"/><path d="M3 12h18M12 3a15.3 15.3 15.3 0 010 18M12 3a15.3 15.3 0 000 18" stroke-width="2"/></svg>
+                <svg class="h-5 w-5 text-blue-600 dark:text-blue-300" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9" stroke-width="2"/><path d="M3 12h18M12 3a15.3 15.3 0 010 18M12 3a15.3 15.3 0 000 18" stroke-width="2"/></svg>
               </span>
               <div>
                 <p class="text-xs text-gray-500 dark:text-slate-400">@tr('Website')</p>

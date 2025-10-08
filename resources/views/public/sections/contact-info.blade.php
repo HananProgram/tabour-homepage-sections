@@ -1,7 +1,7 @@
 <section class="py-20 bg-gradient-to-b from-blue-50 to-white dark:from-slate-900 dark:to-slate-950"
          dir="{{ app()->getLocale()==='ar' ? 'rtl' : 'ltr' }}">
   <div class="mx-auto max-w-7xl px-6">
-    {{-- Hero header --}}
+    {{-- Header --}}
     <div class="text-center mb-12">
       <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white">
         {{ trk('homepage.contact.title.'.$section->id, $section->title ?? __('Contact Us')) }}
@@ -11,19 +11,29 @@
           {{ trk('homepage.contact.subtitle.'.$section->id, $section->subtitle) }}
         </p>
       @endif
+
+      {{-- Optional header image from $section->image_path --}}
+      @if(!empty($section->image_path))
+        <div class="mt-8 flex justify-center">
+          <img src="{{ asset($section->image_path) }}"
+               alt="Contact illustration"
+               class="w-full max-w-3xl rounded-2xl shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 object-cover">
+        </div>
+      @endif
     </div>
 
     @php($c = (is_array($section->content) ? $section->content : (json_decode($section->content, true) ?? []))['contact'] ?? [])
-    {{-- Layout like the reference: left info + map, right form --}}
+
+    {{-- Layout --}}
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-      {{-- Left: info cards + map --}}
+      {{-- Left: info + map --}}
       <div class="lg:col-span-5 space-y-6">
+
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
           @if(!empty($c['phone']))
             <div class="rounded-2xl bg-white shadow-sm ring-1 ring-blue-100 p-6 hover:shadow-md transition">
               <div class="flex items-start gap-3">
                 <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-700">
-                  {{-- phone icon --}}
                   <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M3 5a2 2 0 012-2h1.6a2 2 0 011.94 1.515l.6 2.4a2 2 0 01-.51 1.93L7.8 10.67a14 14 0 006.53 6.53l1.825-1.83a2 2 0 011.93-.51l2.4.6A2 2 0 0121 17.4V19a2 2 0 01-2 2h-.5C9.61 21 3 14.39 3 6.5V6a2 2 0 010-1z"/>
@@ -45,7 +55,6 @@
                class="rounded-2xl bg-white shadow-sm ring-1 ring-green-100 p-6 hover:shadow-md transition block">
               <div class="flex items-start gap-3">
                 <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-green-100 text-green-700">
-                  {{-- whatsapp --}}
                   <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M20.5 3.5A11 11 0 1 0 4 20l-1 3 3-1a11 11 0 1 0 14.5-18.5zM6.8 18.1l.3.2a8.9 8.9 0 1 1 3.5 1l-.3-.2-2 .7.5-1.7z"/>
                   </svg>
@@ -62,7 +71,6 @@
             <div class="rounded-2xl bg-white shadow-sm ring-1 ring-blue-100 p-6 hover:shadow-md transition">
               <div class="flex items-start gap-3">
                 <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-700">
-                  {{-- email --}}
                   <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M3 8l9 6 9-6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
@@ -82,7 +90,6 @@
             <div class="rounded-2xl bg-white shadow-sm ring-1 ring-blue-100 p-6 hover:shadow-md transition">
               <div class="flex items-start gap-3">
                 <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-700">
-                  {{-- shop --}}
                   <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M4 7h16l-1 11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 7zm16-2H4l1.5-3h13L20 5z"/>
                   </svg>
@@ -96,17 +103,7 @@
           @endif
         </div>
 
-        {{-- Map (wide like the screenshot) --}}
-        <div class="rounded-2xl bg-white shadow-sm ring-1 ring-blue-100 p-3">
-          @if(!empty($c['map_embed']))
-            <div class="aspect-video w-full overflow-hidden rounded-xl [&_iframe]:w-full [&_iframe]:h-full [&_iframe]:border-0">
-              {!! $c['map_embed'] !!}
-            </div>
-          @else
-            <div class="h-[320px] flex items-center justify-center text-slate-400">@tr('Map will appear here once added.')</div>
-          @endif
-        </div>
-      </div>
+    
 
       {{-- Right: form --}}
       <div class="lg:col-span-7">
@@ -114,7 +111,8 @@
           <h2 class="text-3xl font-extrabold text-slate-900 mb-2">@tr('Get In Touch')</h2>
           <p class="text-slate-600 mb-6">{{ $c['intro'] ?? '' }}</p>
 
-          <form method="POST" action="{{ $c['form_action'] ?? route('contact.send', [], false) }}">
+          {{-- لا نستدعي أي راوت. إن لم يوجد form_action نستخدم "#" --}}
+          <form method="POST" action="{{ $c['form_action'] ?? '#' }}">
             @csrf
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
@@ -144,6 +142,7 @@
           </form>
         </div>
       </div>
+
     </div>
   </div>
 </section>

@@ -27,17 +27,6 @@
 {{-- كتلة كاملة العرض: الخريطة بالأعلى (إن وجدت) وشريط داكن ملتصق بالـfooter --}}
 <div class="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen bg-gray-800">
 
-  @if(!empty($c['map_embed']))
-    <div class="[&_iframe]:block [&_iframe]:w-full [&_iframe]:h-full [&_iframe]:border-0">
-      <div class="aspect-[4/1] w-full bg-white dark:bg-slate-900">
-        {!! $c['map_embed'] !!}
-      </div>
-    </div>
-  @else
-    <div class="h-72 flex items-center justify-center text-gray-400 bg-white dark:bg-slate-900">
-      @tr('Map will appear here once added.')
-    </div>
-  @endif
 
   {{-- الشريط الداكن --}}
   <div class="px-6 md:px-10 py-8 md:py-10 text-slate-100">

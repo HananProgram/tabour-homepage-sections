@@ -1,20 +1,21 @@
-{{-- كتلة واحدة: خريطة بالأعلى + تذييل داكن بالأسفل بدون فواصل --}}
-<div class="mb-8 rounded-2xl overflow-hidden shadow ring-1 ring-gray-200 dark:ring-slate-700">
+{{-- كتلة واحدة: خريطة بالأعلى + تذييل داكن أسفلها مباشرة --}}
+<div class="mb-8 rounded-2xl overflow-hidden bg-slate-900">
   @if(!empty($c['map_embed']))
-    <div class="aspect-[4/1] w-full [&_iframe]:w-full [&_iframe]:h-full [&_iframe]:border-0 bg-white dark:bg-slate-900">
-      {!! $c['map_embed'] !!}
+    <div class="-mb-px bg-white dark:bg-slate-900 [&_*]:!m-0 [&_iframe]:block [&_iframe]:w-full [&_iframe]:h-full [&_iframe]:border-0">
+      <div class="aspect-[4/1] w-full">
+        {!! $c['map_embed'] !!}
+      </div>
     </div>
   @else
-    <div class="h-72 flex items-center justify-center text-gray-400 dark:text-slate-500 text-sm bg-white dark:bg-slate-900">
+    <div class="h-72 -mb-px flex items-center justify-center text-gray-400 dark:text-slate-500 bg-white dark:bg-slate-900">
       @tr('Map will appear here once added.')
     </div>
   @endif
 
-  {{-- التذييل الداكن ملتحم بالخريطة (لا margin ولا radius إضافي) --}}
-  <div class="bg-slate-900 text-slate-100 px-6 py-8 md:py-10">
+  {{-- التذييل الداكن الملتحم بالخريطة (لا margin ولا radius داخلي) --}}
+  <div class="px-6 py-8 md:py-10 text-slate-100">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
 
-      {{-- العنوان --}}
       <div class="flex items-start gap-4">
         <span class="inline-flex h-10 w-10 rounded-xl bg-slate-800 items-center justify-center shrink-0">
           <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -28,7 +29,6 @@
         </div>
       </div>
 
-      {{-- الهاتف --}}
       <div class="flex items-start gap-4">
         <span class="inline-flex h-10 w-10 rounded-xl bg-slate-800 items-center justify-center shrink-0">
           <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -37,20 +37,13 @@
         </span>
         <div>
           <p class="text-slate-400 text-sm mb-1">@tr('Phone')</p>
-          @if(!empty($c['phone']))
-            <div class="flex flex-wrap items-center gap-3">
-              <a href="tel:{{ $c['phone'] }}" class="font-medium hover:underline">{{ $c['phone'] }}</a>
-              <a href="https://wa.me/{{ preg_replace('/\D+/', '', $c['phone']) }}"
-                 class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs bg-green-600/15 text-green-300 hover:bg-green-600/25"
-                 target="_blank" rel="noopener">WhatsApp</a>
-            </div>
-          @else
-            <p class="font-medium">088-777-666-85</p>
-          @endif
+          <p class="font-medium">
+            @if(!empty($c['phone'])) <a href="tel:{{ $c['phone'] }}" class="hover:underline">{{ $c['phone'] }}</a>
+            @else 088-777-666-85 @endif
+          </p>
         </div>
       </div>
 
-      {{-- البريد + السوشيال --}}
       <div class="flex items-start gap-4">
         <span class="inline-flex h-10 w-10 rounded-xl bg-slate-800 items-center justify-center shrink-0">
           <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -60,13 +53,9 @@
         <div class="w-full">
           <p class="text-slate-400 text-sm mb-1">@tr('Email')</p>
           <p class="font-medium">
-            @if(!empty($c['email']))
-              <a href="mailto:{{ $c['email'] }}" class="hover:underline">{{ $c['email'] }}</a>
-            @else
-              <a href="mailto:contact@vegan.com" class="hover:underline">contact@vegan.com</a>
-            @endif
+            @if(!empty($c['email'])) <a href="mailto:{{ $c['email'] }}" class="hover:underline">{{ $c['email'] }}</a>
+            @else <a href="mailto:contact@vegan.com" class="hover:underline">contact@vegan.com</a> @endif
           </p>
-
           @php($hasSocial = !empty($c['facebook']) || !empty($c['twitter']) || !empty($c['instagram']) || !empty($c['linkedin']))
           <div class="mt-3 flex flex-wrap gap-3">
             @foreach ([

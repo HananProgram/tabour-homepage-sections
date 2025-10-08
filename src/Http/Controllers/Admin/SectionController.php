@@ -20,14 +20,19 @@ class SectionController extends Controller
     }
 
     public function store(Request $request) {
-        $validated = $request->validate([
-        'type' => 'required|string|in:hero,feature_grid,cta,contact_info',
+              $validated = $request->validate([
+            'type' => 'required|string|in:hero,feature_grid,cta,contact_info',
             'title' => 'nullable|string|max:255',
             'subtitle' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'features' => 'nullable|array',
             'contact' => 'nullable|array',
-
+            'contact.email' => 'nullable|email',
+            'contact.website' => 'nullable|url',
+            'contact.facebook' => 'nullable|url',
+            'contact.twitter' => 'nullable|url',
+            'contact.instagram' => 'nullable|url',
+            'contact.linkedin' => 'nullable|url',
         ]);
 
         $data = [
@@ -55,19 +60,22 @@ class SectionController extends Controller
                 $features[] = $feature;
             }
             $data['content'] = ['features' => $features];
-        }elseif ($request->type === 'contact_info' && isset($validated['contact'])) {
-    $contact = $validated['contact'];
-
-    $data['content'] = [
-        'contact' => [
-            'phone'      => $contact['phone'] ?? null,
-            'email'      => $contact['email'] ?? null,
-            'address'    => $contact['address'] ?? null,
-            'map_embed'  => $contact['map_embed'] ?? null,
-            'socials'    => $contact['socials'] ?? [],
-        ],
-    ];
-}
+            } elseif ($request->type === 'contact_info') {
+            $c = $validated['contact'] ?? [];
+             $data['content'] = [
+                'contact' => [
+                    'address'   => $c['address']   ?? '',
+                    'phone'     => $c['phone']     ?? '',
+                    'email'     => $c['email']     ?? '',
+                    'website'   => $c['website']   ?? '',
+                    'facebook'  => $c['facebook']  ?? '',
+                    'twitter'   => $c['twitter']   ?? '',
+                    'instagram' => $c['instagram'] ?? '',
+                    'linkedin'  => $c['linkedin']  ?? '',
+                    'map_embed' => isset($c['map_embed']) ? trim((string)$c['map_embed']) : '',
+                ],    
+                    ];
+        }
 
         $data['order'] = (int) HomepageSection::max('order') + 1;
         HomepageSection::create($data);
@@ -79,44 +87,85 @@ class SectionController extends Controller
         return view('tabour-homepage::admin.edit', compact('section'));
     }
 
-    public function update(UpdateHomepageSectionRequest $request, HomepageSection $section) {
-        $validated = $request->validated();
+  public function update(UpdateHomepageSectionRequest $request, HomepageSection $section)
+{
+    $validated = $request->validated();
 
-        $data = ['title' => $validated['title'] ?? $section->title];
+    // الحقول العامة
+    $data = ['title' => $validated['title'] ?? $section->title];
 
-        if ($request->has('subtitle')) {
-            $data['subtitle'] = $request->filled('subtitle') ? trim((string) $validated['subtitle']) : null;
-        } else {
-            $data['subtitle'] = $section->subtitle;
-        }
-
-        if ($request->hasFile('image')) {
-            if ($section->image_path) Storage::disk('public')->delete($section->image_path);
-            $data['image_path'] = $this->processAndStoreImage($request->file('image'));
-        }
-
-        if ($section->type === 'feature_grid' && isset($validated['features'])) {
-            $features = $section->content['features'] ?? [];
-            foreach ($request->features as $index => $featureData) {
-                if ($index === 'new' && empty($featureData['title'])) continue;
-
-                $feature = $features[$index] ?? [];
-                $feature['title'] = $featureData['title'] ?? '';
-                $feature['description'] = $featureData['description'] ?? '';
-
-                if (isset($request->file('features')[$index]['image'])) {
-                    if (!empty($feature['image_path'])) Storage::disk('public')->delete($feature['image_path']);
-                    $feature['image_path'] = $this->processAndStoreImage($request->file('features')[$index]['image'], 400);
-                }
-
-                if ($index === 'new') $features[] = $feature; else $features[$index] = $feature;
-            }
-            $data['content'] = ['features' => array_values($features)];
-        }
-
-        $section->update($data);
-        return redirect()->route('superadmin.homepage-sections.index')->with('success', 'Section updated successfully.');
+    if ($request->has('subtitle')) {
+        $data['subtitle'] = $request->filled('subtitle') ? trim((string) $validated['subtitle']) : null;
+    } else {
+        $data['subtitle'] = $section->subtitle;
     }
+
+    // صورة القسم إن لزم
+    if ($request->hasFile('image')) {
+        if ($section->image_path) {
+            Storage::disk('public')->delete($section->image_path);
+        }
+        $data['image_path'] = $this->processAndStoreImage($request->file('image'));
+    }
+
+    // تحديث ميزات feature_grid
+    if ($section->type === 'feature_grid' && isset($validated['features'])) {
+        $features = $section->content['features'] ?? [];
+        foreach ($request->features as $index => $featureData) {
+            if ($index === 'new' && empty($featureData['title'])) {
+                continue;
+            }
+
+            $feature = $features[$index] ?? [];
+            $feature['title'] = $featureData['title'] ?? '';
+            $feature['description'] = $featureData['description'] ?? '';
+
+            if (isset($request->file('features')[$index]['image'])) {
+                if (!empty($feature['image_path'])) {
+                    Storage::disk('public')->delete($feature['image_path']);
+                }
+                $feature['image_path'] = $this->processAndStoreImage($request->file('features')[$index]['image'], 400);
+            }
+
+            if ($index === 'new') {
+                $features[] = $feature;
+            } else {
+                $features[$index] = $feature;
+            }
+        }
+        $data['content'] = ['features' => array_values($features)];
+    }
+
+    // تحديث بيانات contact_info
+    if ($section->type === 'contact_info') {
+        $c = $request->input('contact', []);
+        $existing = $section->content['contact'] ?? [];
+        $content = $section->content ?? [];
+
+        $content['contact'] = [
+            'address'   => $c['address']   ?? ($existing['address']   ?? ''),
+            'phone'     => $c['phone']     ?? ($existing['phone']     ?? ''),
+            'email'     => $c['email']     ?? ($existing['email']     ?? ''),
+            'website'   => $c['website']   ?? ($existing['website']   ?? ''),
+            'facebook'  => $c['facebook']  ?? ($existing['facebook']  ?? ''),
+            'twitter'   => $c['twitter']   ?? ($existing['twitter']   ?? ''),
+            'instagram' => $c['instagram'] ?? ($existing['instagram'] ?? ''),
+            'linkedin'  => $c['linkedin']  ?? ($existing['linkedin']  ?? ''),
+            'map_embed' => array_key_exists('map_embed', $c)
+                            ? trim((string)$c['map_embed'])
+                            : ($existing['map_embed'] ?? ''),
+        ];
+
+        $data['content'] = $content;
+    }
+
+    $section->update($data);
+
+    return redirect()
+        ->route('superadmin.homepage-sections.index')
+        ->with('success', 'Section updated successfully.');
+}
+
 
     public function destroy(HomepageSection $section) {
         if ($section->image_path) Storage::disk('public')->delete($section->image_path);

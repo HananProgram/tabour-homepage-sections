@@ -66,44 +66,28 @@
                     </div>
                 @endfor
             </div>
-</div> <!-- نهاية featureGridContainer -->
+        </div> <!-- نهاية featureGridContainer -->
 
-<!-- NEW: Contact Info container -->
-<div id="contactInfoContainer" class="bg-gray-50 p-4 rounded-lg border" style="display: none;">
-    <h3 class="text-lg font-semibold text-gray-700 mb-4">@tr('Contact Information')</h3>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-            <label class="block text-sm font-medium">@tr('Phone')</label>
-            <input type="text" name="contact[phone]" value="{{ old('contact.phone') }}" placeholder="@tr('Phone number')" class="w-full border p-2 rounded mt-1">
+        {{-- Contact Info --}}
+        <div id="contactInfoContainer" class="bg-gray-50 p-4 rounded-lg border" style="display:none;">
+        <h3 class="text-lg font-semibold text-gray-700 mb-4">@tr('Contact Information')</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input type="text" name="contact[address]"      value="{{ old('contact.address') }}"      placeholder="@tr('Address')"      class="w-full border p-2 rounded">
+            <input type="text" name="contact[phone]"        value="{{ old('contact.phone') }}"        placeholder="@tr('Phone')"        class="w-full border p-2 rounded">
+            <input type="email" name="contact[email]"       value="{{ old('contact.email') }}"        placeholder="@tr('Email')"        class="w-full border p-2 rounded">
+            <input type="url"   name="contact[website]"     value="{{ old('contact.website') }}"      placeholder="@tr('Website URL')" class="w-full border p-2 rounded">
         </div>
-
-        <div>
-            <label class="block text-sm font-medium">@tr('Email')</label>
-            <input type="email" name="contact[email]" value="{{ old('contact.email') }}" placeholder="@tr('Email address')" class="w-full border p-2 rounded mt-1">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <input type="url" name="contact[facebook]"  value="{{ old('contact.facebook') }}"  placeholder="@tr('Facebook URL')"  class="w-full border p-2 rounded">
+            <input type="url" name="contact[twitter]"   value="{{ old('contact.twitter') }}"   placeholder="@tr('X/Twitter URL')" class="w-full border p-2 rounded">
+            <input type="url" name="contact[instagram]" value="{{ old('contact.instagram') }}" placeholder="@tr('Instagram URL')" class="w-full border p-2 rounded">
+            <input type="url" name="contact[linkedin]"  value="{{ old('contact.linkedin') }}"  placeholder="@tr('LinkedIn URL')"  class="w-full border p-2 rounded">
         </div>
-
-        <div class="md:col-span-2">
-            <label class="block text-sm font-medium">@tr('Address')</label>
-            <input type="text" name="contact[address]" value="{{ old('contact.address') }}" placeholder="@tr('Physical address')" class="w-full border p-2 rounded mt-1">
+        <div class="mt-4">
+            <label class="block text-sm font-medium">@tr('Map Embed (iframe)')</label>
+        <textarea name="contact[map_embed]" rows="3" class="w-full border p-2 rounded mt-1" placeholder='@tr("Paste Google Maps iframe")'>{{ old('contact.map_embed') }}</textarea>
         </div>
-
-        <div class="md:col-span-2">
-            <label class="block text-sm font-medium">@tr('Map Embed (iframe or URL)')</label>
-            <textarea name="contact[map_embed]" rows="3" class="w-full border p-2 rounded mt-1" placeholder="@tr('Paste iframe or map URL here')">{{ old('contact.map_embed') }}</textarea>
         </div>
-    </div>
-
-    <div class="mt-4">
-        <p class="font-semibold">@tr('Social Links (optional)')</p>
-        @for ($i = 0; $i < 3; $i++)
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-                <input type="text" name="contact[socials][{{ $i }}][platform]" placeholder="@tr('Platform e.g. Twitter')" class="w-full border p-2 rounded">
-                <input type="url" name="contact[socials][{{ $i }}][url]" placeholder="@tr('Profile URL')" class="w-full border p-2 rounded">
-            </div>
-        @endfor
-    </div>
-</div>
 
             <div class="text-right">
                 <button type="submit" class="bg-blue-600 text-white font-bold px-6 py-2 rounded-lg hover:bg-blue-700">
@@ -122,7 +106,6 @@
         const mainImageContainer = document.getElementById('main-image-container');
         const featureGridContainer = document.getElementById('featureGridContainer');
         const contactInfoContainer = document.getElementById('contactInfoContainer');
-
 
        function updateFormVisibility() {
     const selectedType = sectionTypeSelect.value;

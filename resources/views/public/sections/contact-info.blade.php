@@ -2,7 +2,7 @@
   <div class="container mx-auto px-6">
     <div class="text-center mb-10">
       <h3 class="text-3xl font-bold text-gray-800">
-        {{ trk('homepage.contact.title.'.$section->id, $section->title ?? @tr('Contact Us')) }}
+        {{ trk('homepage.contact.title.'.$section->id, $section->title ?? __('Contact Us')) }}
       </h3>
       @if(!empty($section->subtitle))
         <p class="text-gray-600 mt-2">
@@ -11,7 +11,7 @@
       @endif
     </div>
 
-    @php($c = $section->content['contact'] ?? [])
+    @php($c = (is_array($section->content) ? $section->content : (json_decode($section->content, true) ?? []))['contact'] ?? [])
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
       <div class="space-y-4">
         @if(!empty($c['address']))

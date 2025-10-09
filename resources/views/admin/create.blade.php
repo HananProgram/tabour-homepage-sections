@@ -83,10 +83,7 @@
             <input type="url" name="contact[instagram]" value="{{ old('contact.instagram') }}" placeholder="@tr('Instagram URL')" class="w-full border p-2 rounded">
             <input type="url" name="contact[linkedin]"  value="{{ old('contact.linkedin') }}"  placeholder="@tr('LinkedIn URL')"  class="w-full border p-2 rounded">
         </div>
-        <div class="mt-4">
-            <label class="block text-sm font-medium">@tr('Map Embed (iframe)')</label>
-        <textarea name="contact[map_embed]" rows="3" class="w-full border p-2 rounded mt-1" placeholder='@tr("Paste Google Maps iframe")'>{{ old('contact.map_embed') }}</textarea>
-        </div>
+
         </div>
 
             <div class="text-right">

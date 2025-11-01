@@ -55,8 +55,8 @@
 </div>
 
 {{-- Delete modal --}}
-<div id="delete-section-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50">
-    <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full">
+<div id="delete-section-modal" class="hidden fixed inset-0 bg-black/60 grid place-items-center z-[100] p-4">
+    <div class="bg-white p-6 rounded-lg shadow-xl w-[90vw] max-w-md md:max-w-lg">
         <h3 class="text-xl font-bold mb-4">@tr('Confirm Section Deletion')</h3>
         <p class="text-gray-600 mb-6">
             @tr('Are you sure you want to delete this section? This action cannot be undone.')

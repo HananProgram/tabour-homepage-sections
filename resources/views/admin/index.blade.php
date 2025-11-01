@@ -55,7 +55,9 @@
 </div>
 
 {{-- Delete modal --}}
-<div id="delete-section-modal" class="hidden fixed inset-0 bg-[rgba(var(--primary-500),0.18)] grid place-items-center z-[100] p-4">
+<div id="delete-section-modal"
+     class="hidden fixed inset-0 grid place-items-center z-[2000] p-4 bg-black/40 backdrop-blur-[2px]"
+     style="background: rgb(var(--primary-500, 0 0 0) / 0.18);">
     <div class="bg-white p-6 rounded-lg shadow-xl w-[90vw] max-w-md md:max-w-lg">
         <h3 class="text-xl font-bold mb-4">@tr('Confirm Section Deletion')</h3>
         <p class="text-gray-600 mb-6">

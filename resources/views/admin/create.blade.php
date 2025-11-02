@@ -7,16 +7,7 @@
         <a href="{{ route('superadmin.homepage-sections.index') }}" class="text-blue-600 hover:underline">&larr; @tr('Back to Sections')</a>
     </div>
 
-    @if ($errors->any())
-        <div class="p-4 mb-6 text-sm text-red-800 rounded-lg bg-red-50" role="alert">
-            <span class="font-medium">@tr('Please fix the following errors:')</span>
-            <ul class="mt-1.5 list-disc list-inside">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+
 
     <form action="{{ route('superadmin.homepage-sections.store') }}" method="POST" enctype="multipart/form-data">
         @csrf

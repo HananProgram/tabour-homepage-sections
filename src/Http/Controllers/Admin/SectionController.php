@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Tabour\Homepage\Models\HomepageSection;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\UpdateHomepageSectionRequest; // لو عندك هذا الريكوست محلياً
+use App\Http\Requests\UpdateHomepageSectionRequest; 
 
 class SectionController extends Controller
 {

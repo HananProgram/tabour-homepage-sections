@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Tabour\Homepage\Models\HomepageSection;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\UpdateHomepageSectionRequest; 
+use App\Http\Requests\UpdateHomepageSectionRequest;
 
 class SectionController extends Controller
 {
@@ -30,6 +30,10 @@ class SectionController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'features' => 'nullable|array',
             'contact' => 'nullable|array',
+
+            'contact.latitude' => 'nullable|numeric|between:-90,90',
+            'contact.longitude' => 'nullable|numeric|between:-180,180',
+
             'contact.email' => 'nullable|email',
             'contact.website' => 'nullable|url',
             'contact.facebook' => 'nullable|url',
@@ -65,20 +69,51 @@ class SectionController extends Controller
             }
             $data['content'] = ['features' => $features];
         } elseif ($request->type === 'contact_info') {
-            $c = $validated['contact'] ?? [];
-            $data['content'] = [
-                'contact' => [
-                    'address' => $c['address'] ?? '',
-                    'phone' => $c['phone'] ?? '',
-                    'email' => $c['email'] ?? '',
-                    'website' => $c['website'] ?? '',
-                    'facebook' => $c['facebook'] ?? '',
-                    'twitter' => $c['twitter'] ?? '',
-                    'instagram' => $c['instagram'] ?? '',
-                    'linkedin' => $c['linkedin'] ?? '',
-                    'map_embed' => isset($c['map_embed']) ? trim((string) $c['map_embed']) : '',
-                ],
+            $c = $request->input('contact', []);
+            if (!is_array($c))
+                $c = [];
+
+            $contact = [
+                'address' => trim((string) ($c['address'] ?? '')),
+                'phone' => trim((string) ($c['phone'] ?? '')),
+                'email' => trim((string) ($c['email'] ?? '')),
+                'website' => trim((string) ($c['website'] ?? '')),
+                'facebook' => trim((string) ($c['facebook'] ?? '')),
+                'twitter' => trim((string) ($c['twitter'] ?? '')),
+                'instagram' => trim((string) ($c['instagram'] ?? '')),
+                'linkedin' => trim((string) ($c['linkedin'] ?? '')),
+
+                'latitude' => array_key_exists('latitude', $c) ? $c['latitude'] : null,
+                'longitude' => array_key_exists('longitude', $c) ? $c['longitude'] : null,
+
+                'map_embed' => trim((string) ($c['map_embed'] ?? '')),
             ];
+
+            $contact['latitude'] = ($contact['latitude'] === '' ? null : $contact['latitude']);
+            $contact['longitude'] = ($contact['longitude'] === '' ? null : $contact['longitude']);
+
+            $lat = data_get($contact, 'latitude');
+            $lng = data_get($contact, 'longitude');
+
+            if ((!is_numeric($lat) || !is_numeric($lng)) && filled($contact['map_embed'])) {
+                if (preg_match('/[?&]q=([-0-9.]+),([-0-9.]+)/', $contact['map_embed'], $m)) {
+                    $contact['latitude'] = $m[1];
+                    $contact['longitude'] = $m[2];
+                    $lat = $contact['latitude'];
+                    $lng = $contact['longitude'];
+                }
+            }
+
+            if (is_numeric($lat) && is_numeric($lng)) {
+                $lat7 = number_format((float) $lat, 7, '.', '');
+                $lng7 = number_format((float) $lng, 7, '.', '');
+
+                $contact['latitude'] = (float) $lat7;
+                $contact['longitude'] = (float) $lng7;
+                $contact['map_embed'] = "https://www.google.com/maps?q={$lat7},{$lng7}&z=16&output=embed";
+            }
+
+            $data['content'] = ['contact' => $contact];
         }
 
         $data['order'] = (int) HomepageSection::max('order') + 1;
@@ -145,13 +180,12 @@ class SectionController extends Controller
             $data['content'] = ['features' => array_values($features)];
         }
 
-        // تحديث بيانات contact_info
         if ($section->type === 'contact_info') {
             $c = $request->input('contact', []);
             $existing = $section->content['contact'] ?? [];
             $content = $section->content ?? [];
 
-            $content['contact'] = [
+            $contact = [
                 'address' => $c['address'] ?? ($existing['address'] ?? ''),
                 'phone' => $c['phone'] ?? ($existing['phone'] ?? ''),
                 'email' => $c['email'] ?? ($existing['email'] ?? ''),
@@ -160,11 +194,44 @@ class SectionController extends Controller
                 'twitter' => $c['twitter'] ?? ($existing['twitter'] ?? ''),
                 'instagram' => $c['instagram'] ?? ($existing['instagram'] ?? ''),
                 'linkedin' => $c['linkedin'] ?? ($existing['linkedin'] ?? ''),
+                'latitude' => filled($c['latitude'] ?? null)
+                    ? $c['latitude']
+                    : ($existing['latitude'] ?? null),
+
+                'longitude' => filled($c['longitude'] ?? null)
+                    ? $c['longitude']
+                    : ($existing['longitude'] ?? null),
+
                 'map_embed' => array_key_exists('map_embed', $c)
                     ? trim((string) $c['map_embed'])
                     : ($existing['map_embed'] ?? ''),
             ];
 
+            $contact['latitude'] = ($contact['latitude'] === '' ? null : $contact['latitude']);
+            $contact['longitude'] = ($contact['longitude'] === '' ? null : $contact['longitude']);
+
+            $lat = data_get($contact, 'latitude');
+            $lng = data_get($contact, 'longitude');
+
+            if ((!is_numeric($lat) || !is_numeric($lng)) && filled($contact['map_embed'])) {
+                if (preg_match('/[?&]q=([-0-9.]+),([-0-9.]+)/', $contact['map_embed'], $m)) {
+                    $contact['latitude'] = $m[1];
+                    $contact['longitude'] = $m[2];
+                    $lat = $contact['latitude'];
+                    $lng = $contact['longitude'];
+                }
+            }
+
+            if (is_numeric($lat) && is_numeric($lng)) {
+                $lat7 = number_format((float) $lat, 7, '.', '');
+                $lng7 = number_format((float) $lng, 7, '.', '');
+
+                $contact['latitude'] = (float) $lat7;
+                $contact['longitude'] = (float) $lng7;
+                $contact['map_embed'] = "https://www.google.com/maps?q={$lat7},{$lng7}&z=16&output=embed";
+            }
+
+            $content['contact'] = $contact;
             $data['content'] = $content;
         }
 

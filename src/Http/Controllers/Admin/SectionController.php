@@ -184,6 +184,7 @@ class SectionController extends Controller
             $c = $request->input('contact', []);
             $existing = $section->content['contact'] ?? [];
             $content = $section->content ?? [];
+            $incomingEmbed = array_key_exists('map_embed', $c) ? trim((string) ($c['map_embed'] ?? '')) : null;
 
             $contact = [
                 'address' => $c['address'] ?? ($existing['address'] ?? ''),
@@ -202,8 +203,8 @@ class SectionController extends Controller
                     ? $c['longitude']
                     : ($existing['longitude'] ?? null),
 
-                'map_embed' => array_key_exists('map_embed', $c)
-                    ? trim((string) $c['map_embed'])
+                'map_embed' => ($incomingEmbed !== null && $incomingEmbed !== '')
+                    ? $incomingEmbed
                     : ($existing['map_embed'] ?? ''),
             ];
 

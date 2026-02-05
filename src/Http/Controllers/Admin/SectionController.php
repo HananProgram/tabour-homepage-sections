@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Storage;
 use Tabour\Homepage\Models\HomepageSection;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateHomepageSectionRequest;
+use Spatie\TranslationLoader\LanguageLine;
 
 class SectionController extends Controller
 {
@@ -117,7 +118,13 @@ class SectionController extends Controller
         }
 
         $data['order'] = (int) HomepageSection::max('order') + 1;
-        HomepageSection::create($data);
+        $section = HomepageSection::create($data);
+
+        $section->refresh(); // مهم
+        $this->syncSectionTranslationsFromSection($section);
+
+
+        cache()->flush();
 
         return redirect()->route('superadmin.homepage-sections.index')->with('success', [
             'title' => ['en' => 'Section created', 'ar' => 'تم إنشاء القسم'],
@@ -135,16 +142,22 @@ class SectionController extends Controller
     {
         $validated = $request->validated();
 
-        // الحقول العامة
-        $data = ['title' => $validated['title'] ?? $section->title];
+        $data = [];
 
-        if ($request->has('subtitle')) {
-            $data['subtitle'] = $request->filled('subtitle') ? trim((string) $validated['subtitle']) : null;
-        } else {
-            $data['subtitle'] = $section->subtitle;
+        // ✅ title
+        if ($request->has('title')) {
+            $data['title'] = $request->filled('title')
+                ? trim((string) $request->input('title'))
+                : null;
         }
 
-        // صورة القسم إن لزم
+        // ✅ subtitle
+        if ($request->has('subtitle')) {
+            $data['subtitle'] = $request->filled('subtitle')
+                ? trim((string) $request->input('subtitle'))
+                : null;
+        }
+
         if ($request->hasFile('image')) {
             if ($section->image_path) {
                 Storage::disk('public')->delete($section->image_path);
@@ -237,6 +250,10 @@ class SectionController extends Controller
         }
 
         $section->update($data);
+        $section->refresh(); // مهم
+        $this->syncSectionTranslationsFromSection($section);
+        cache()->flush();
+
         return redirect()
             ->route('superadmin.homepage-sections.index')
             ->with('success', [
@@ -338,5 +355,59 @@ class SectionController extends Controller
         @unlink($tempPath);
 
         return $path;
+    }
+    private function syncSectionTranslationsFromSection(HomepageSection $section): void
+    {
+        $typeKey = $section->type === 'contact_info' ? 'contact' : $section->type;
+
+        $map = [
+            'title' => "homepage.{$typeKey}.title.{$section->id}",
+            'subtitle' => "homepage.{$typeKey}.subtitle.{$section->id}",
+        ];
+
+        $locales = array_unique([
+            app()->getLocale(),
+            config('app.fallback_locale'),
+        ]);
+
+        // ✅ مهم جداً لو عندك multi-tenant أو تغيير connection أثناء الطلب
+        $conn = config('translation-loader.database_connection') ?: config('database.default');
+
+        foreach ($map as $field => $key) {
+            // ✅ المصدر الحقيقي: القيمة المحفوظة في DB
+            $value = trim((string) ($section->{$field} ?? ''));
+
+            $line = LanguageLine::on($conn)->firstOrNew([
+                'group' => 'ui',
+                'key' => $key,
+            ]);
+
+            $text = (array) ($line->text ?? []);
+
+            if ($value === '') {
+                foreach ($locales as $loc) {
+                    unset($text[$loc]);
+                }
+
+                if (empty($text)) {
+                    if ($line->exists) {
+                        $line->delete();
+                    }
+                } else {
+                    $line->text = $text;
+                    $line->save();
+                }
+
+                continue;
+            }
+
+            // ✅ اكتب في اللغتين (current + fallback) لضمان التزامن الفوري
+            foreach ($locales as $loc) {
+                $text[$loc] = $value;
+            }
+
+            $line->text = $text;
+            $line->save();
+        }
     }
 }
